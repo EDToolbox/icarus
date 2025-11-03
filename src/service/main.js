@@ -12,6 +12,7 @@ const proxy = httpProxy.createProxyServer({})
 const WebSocket = require('ws')
 const yargs = require('yargs')
 const packageJson = require('../../package.json')
+const logger = require('./lib/logger')
 
 const commandLineArgs = yargs
   .help()
@@ -31,7 +32,7 @@ const commandLineArgs = yargs
   .alias('h', 'help')
   .argv
 
-console.log(`ICARUS Terminal Service ${packageJson.version}`)
+logger.info(`ICARUS Terminal Service ${packageJson.version}`)
 
 // Parse command line arguments
 const PORT = commandLineArgs.port || commandLineArgs.p || 3300 // Port to listen on
@@ -40,11 +41,11 @@ const WEB_DIR = 'build/client'
 const LOG_DIR = getLogDir()
 
 if (!fs.existsSync(LOG_DIR)) {
-  console.error('ERROR: No save game data found in', LOG_DIR, '\n')
+  logger.error('No save game data found in', LOG_DIR)
   yargs.showHelp()
   process.exit(1)
 } else {
-  console.log('Loading save game data from', LOG_DIR)
+  logger.info('Loading save game data from', LOG_DIR)
 }
 
 function getLogDir () {
@@ -107,7 +108,7 @@ if (DEVELOPMENT) {
 
 const webSocketServer = new WebSocket.Server({ server: httpServer })
 
-function webSocketDebugMessage () { /* console.log(...arguments) */ }
+function webSocketDebugMessage () { /* logger.debug(...arguments) */ }
 
 // Bind message event handler to WebSocket server before starting server
 webSocketServer.on('connection', socket => {
@@ -120,7 +121,7 @@ webSocketServer.on('connection', socket => {
         const data = await eventHandlers[name](message || {})
         socket.send(JSON.stringify({ requestId, name, message: data }))
       } catch (e) {
-        console.error('ERROR_SOCKET_NO_EVENT_HANDLER', name, e)
+        logger.error('ERROR_SOCKET_NO_EVENT_HANDLER', name, e)
       }
     }
   })
@@ -142,24 +143,24 @@ function broadcastEvent (name, message) {
     // Look for for loadingProgress events and display information about events
     // loaded to the console when loadingProgress indicates loading is complete
     if (name === 'loadingProgress' && message.loadingComplete === true) {
-      console.log(`Scanned ${message.numberOfFiles} files`)
-      console.log(`Imported ${message.numberOfEventsImported} events`)
+      logger.info(`Scanned ${message.numberOfFiles} files`)
+      logger.info(`Imported ${message.numberOfEventsImported} events`)
     }
   } catch (e) {
-    console.error('ERROR_SOCKET_BROADCAST_EVENT_FAILED', name, message, e)
+    logger.error('ERROR_SOCKET_BROADCAST_EVENT_FAILED', name, message, e)
   }
 }
 
 webSocketServer.on('error', function (error) {
   if (error.code && error.code === 'EADDRINUSE') {
-    console.error(`Failed to start service, port ${PORT} already in use.`)
+    logger.error(`Failed to start service, port ${PORT} already in use.`)
     process.exit(1)
   }
 })
 
 // Start server
 httpServer.listen(PORT)
-console.log(`Listening on port ${PORT}…`)
+logger.info(`Listening on port ${PORT}…`)
 
 // Initialize app - start parsing data and watching for game state changes
 setTimeout(() => init(), 500)

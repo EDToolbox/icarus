@@ -5,6 +5,7 @@ const CoriolisBlueprints = new (require('../data'))('edcd/coriolis/blueprints')
 const CoriolisModules = new (require('../data'))('edcd/coriolis/modules')
 const CmdrStatus = require('./cmdr-status')
 const { UNKNOWN_VALUE } = require('../../../shared/consts')
+const logger = require('../logger')
 
 let lastKnownShipState = null
 
@@ -75,7 +76,7 @@ class ShipStatus {
         const blueprint = await CoriolisBlueprints.getBySymbol(module.Engineering.BlueprintName)
 
         if (!blueprint) {
-          console.log(`Error! Unknown blueprint "${module.Engineering.BlueprintName}"`)
+          logger.warn(`Unknown blueprint "${module.Engineering.BlueprintName}"`)
           return
         }
 

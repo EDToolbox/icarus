@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gonutz/w32/v2"
 	"github.com/jmoiron/jsonq"
 	"io"
@@ -43,27 +44,27 @@ func InstallUpdate() {
 	}
 }
 
-func GetCurrentAppVersion() string {
+func GetCurrentAppVersion() (string, error) {
 	pathToExecutable, err := os.Executable()
 	if err != nil {
-		panic("os.Executable() failed")
+		return "", fmt.Errorf("failed to get executable path: %w", err)
 	}
 
 	size := w32.GetFileVersionInfoSize(pathToExecutable)
 	if size <= 0 {
-		panic("GetFileVersionInfoSize failed")
+		return "", fmt.Errorf("failed to get file version info size for %s", pathToExecutable)
 	}
 
 	info := make([]byte, size)
 	ok := w32.GetFileVersionInfo(pathToExecutable, info)
 	if !ok {
-		panic("GetFileVersionInfo failed")
+		return "", fmt.Errorf("failed to get file version info for %s", pathToExecutable)
 	}
 
 	/*
 		fixed, ok := w32.VerQueryValueRoot(info)
 		if !ok {
-				panic("VerQueryValueRoot failed")
+				return "", fmt.Errorf("VerQueryValueRoot failed")
 		}
 		version := fixed.FileVersion()
 		fileVersion := fmt.Sprintf(
@@ -77,22 +78,22 @@ func GetCurrentAppVersion() string {
 
 	translations, ok := w32.VerQueryValueTranslations(info)
 	if !ok {
-		panic("VerQueryValueTranslations failed")
+		return "", fmt.Errorf("failed to query value translations")
 	}
 	if len(translations) == 0 {
-		panic("no translation found")
+		return "", fmt.Errorf("no translation found in version info")
 	}
 	t := translations[0]
 
 	productVersion, ok := w32.VerQueryValueString(info, t, w32.ProductVersion)
 	if !ok {
-		panic("cannot get product version")
+		return "", fmt.Errorf("cannot get product version from version info")
 	}
 
 	// Convert from version with build number (0.0.0.0) to semver version (0.0.0)
 	productVersion = regexp.MustCompile(`(\.[^\.]+)$`).ReplaceAllString(productVersion, ``)
 
-	return productVersion
+	return productVersion, nil
 }
 
 func GetLatestRelease() (Release, error) {

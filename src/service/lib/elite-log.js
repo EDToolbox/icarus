@@ -4,6 +4,7 @@ const crypto = require('crypto')
 const glob = require('glob')
 const retry = require('async-retry')
 const Datastore = require('nedb-promises')
+const logger = require('./logger')
 const db = new Datastore()
 
 // Do not fire log events for these event types
@@ -323,7 +324,7 @@ class EliteLog {
           // Trigger callback for each log entry loaded
           if (callback) logs.map(log => callback(log))
         } catch (e) {
-          console.error(e)
+          logger.error(e)
         }
     })
   }
@@ -349,7 +350,7 @@ class EliteLog {
       // Note: Journal.*.log excludes files like JournalAlpha.*.log so that
       // alpha / beta test data doesn't get included by mistake.
       glob(`${this.dir}/Journal.*.log`, {}, async (error, globFiles) => {
-        if (error) return console.error(error)
+        if (error) return logger.error(error)
 
         const files = globFiles.map(name => {
           const { size, mtime: lastModified } = fs.statSync(name)

@@ -109,7 +109,7 @@ Notes:
 * The standalone binary does not have a native UI, you must connect via a browser.
 * Features that depend on native UI (e.g. always on top, borderless) are not supported.
 * If you wish to build for other architure (e.g. arm64) edit the target value for your platform in `scripts\build-standalone.js`.
-* On Linux, due to what seems to bug in the complier not bundling resources correctly, the binary needs to be executed from the dist directory (i.e. `dist/icaurs-terminal-service-linux`) and it may not work correctly if it is moved to another location.
+* On Linux, due to what seems to be a bug in the compiler not bundling resources correctly, the binary needs to be executed from the dist directory (i.e. `dist/icaurs-terminal-service-linux`) and it may not work correctly if it is moved to another location.
 
 As the game itself is not supported by the developers on Mac or Linux I do not plan to aim for feature parity on these platforms.
 

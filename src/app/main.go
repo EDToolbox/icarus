@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/jchv/go-webview2"
 	"github.com/nvsoft/win"
 	"github.com/phayes/freeport"
 	"github.com/rodolfoag/gow32"
 	"github.com/sqweek/dialog"
-	"github.com/webview/webview"
 	"golang.org/x/sys/windows"
 	"os"
 	"os/exec"
@@ -40,7 +40,9 @@ func main() {
 
 	_processGroup, err := NewProcessGroup()
 	if err != nil {
-		panic(err)
+		fmt.Printf("Error creating process group: %v\n", err)
+		dialog.Message("Failed to initialize process group: %v", err).Title("Error").Error()
+		os.Exit(1)
 	}
 	defer _processGroup.Dispose()
 	processGroup = _processGroup
@@ -240,7 +242,12 @@ func bindFunctionsToWebView(w webview.WebView) {
 	defaultWindowStyle := win.GetWindowLong(hwnd, win.GWL_STYLE)
 
 	w.Bind("icarusTerminal_version", func() string {
-		return GetCurrentAppVersion()
+		version, err := GetCurrentAppVersion()
+		if err != nil {
+			fmt.Printf("Error getting app version: %v\n", err)
+			return "unknown"
+		}
+		return version
 	})
 
 	w.Bind("icarusTerminal_checkForUpdate", func() string {

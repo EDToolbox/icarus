@@ -5,6 +5,7 @@ const path = require('path')
 // const sendKeys = require('sendkeys-js')
 // onst keycode = require('keycodes')
 const { UNKNOWN_VALUE } = require('../../shared/consts')
+const logger = require('./logger')
 
 const { BROADCAST_EVENT: broadcastEvent } = global
 
@@ -179,8 +180,8 @@ class EventHandlers {
             const keyAsKeycode = convertKeyToKeycode(keyToSend)
             //const modifierKeyAsKeycode =  keycode.codes[modifierKey?.toLowerCase()]
 
-            console.log('KEYBINDS_MAP[switchName]', switchName, KEYBINDS_MAP[switchName])
-            console.log('Key', keyToSend, keyAsKeycode) // modifierKey, modifierKeyAsKeycode)
+            logger.debug('KEYBINDS_MAP[switchName]', switchName, KEYBINDS_MAP[switchName])
+            logger.debug('Key', keyToSend, keyAsKeycode) // modifierKey, modifierKeyAsKeycode)
 
             // Set Elite Dangerous as the active window
             await sendKeys.activate(TARGET_WINDOW_TITLE)
@@ -189,7 +190,7 @@ class EventHandlers {
             return true
 
           } catch (e) {
-            console.error('ERROR_SENDING_KEY', switchName, e.toString())
+            logger.error('ERROR_SENDING_KEY', switchName, e.toString())
             return false
           }
           */

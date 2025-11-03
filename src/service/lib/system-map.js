@@ -1,3 +1,4 @@
+const logger = require('./logger')
 const {
   MEGASHIPS,
   SPACE_STATIONS,
@@ -89,7 +90,7 @@ class SystemMap {
 
       // This should never happen
       if (!systemObjectWithTimestamp.hasOwnProperty('id64'))
-        return console.log('#getUniqueObjectsByProperty error - systemObject does not have id64 property', systemObject)
+        return logger.error('#getUniqueObjectsByProperty error - systemObject does not have id64 property', systemObject)
 
       if (systemObjectsBy64BitId[systemObjectWithTimestamp.id64]) {
         // If this item is newer, replace it with the one we already have
