@@ -20,6 +20,7 @@ const socketOptions = {
 function socketDebugMessage () { /* console.log(...arguments) */ }
 
 function connect (socketState, setSocketState) {
+  if (typeof window === 'undefined') return // Don't run on server
   if (socket !== null) return
 
   // Reset on reconnect
@@ -45,7 +46,7 @@ function connect (socketState, setSocketState) {
     }
 
     // Broadcast event to anything that is listening for an event with this name
-    if (!requestId && name) {
+    if (!requestId && name && typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent(`socketEvent_${name}`, { detail: message }))
 
       // When a broadcast message is received, use recentBroadcastEvents to
@@ -148,7 +149,7 @@ const SocketContext = createContext()
 function SocketProvider ({ children }) {
   const [socketState, setSocketState] = useState(defaultSocketState)
 
-  if (typeof WebSocket !== 'undefined' && socketState.connected !== true) {
+  if (typeof window !== 'undefined' && typeof WebSocket !== 'undefined' && socketState.connected !== true) {
     connect(socketState, setSocketState)
   }
 

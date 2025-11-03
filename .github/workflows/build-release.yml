@@ -36,9 +36,7 @@ jobs:
         echo "C:\Program Files (x86)\NSIS" >> $env:GITHUB_PATH
         
     - name: Install Node.js dependencies
-      run: |
-        npm ci --legacy-peer-deps
-        echo "Dependencies installed successfully"
+      run: npm ci --legacy-peer-deps
       
     - name: Run linting and type checking
       run: |
@@ -47,10 +45,7 @@ jobs:
       continue-on-error: true
       
     - name: Build client application
-      run: |
-        echo "Building client application..."
-        npm run build:client
-        echo "Client build completed"
+      run: npm run build:client
         
     - name: Copy client build to build directory
       run: |

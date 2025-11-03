@@ -21,7 +21,7 @@ import (
 var dirname = ""
 var defaultPort = 3300 // Set to 0 to be assigned a free high numbered port
 var port int           // Actual port we are running on
-var webViewInstance webview.WebView
+var webViewInstance webview2.WebView
 
 // Track main window size when switching to/from fullscreen
 var windowWidth = defaultWindowWidth
@@ -88,7 +88,7 @@ func main() {
 
 	// Check if we are starting in Terminal mode
 	if *terminalMode {
-		createWindow(TERMINAL_WINDOW_TITLE, url, defaultWindowWidth, defaultWindowHeight, webview.HintNone)
+		createWindow(TERMINAL_WINDOW_TITLE, url, defaultWindowWidth, defaultWindowHeight, webview2.HintNone)
 		return
 	}
 
@@ -165,9 +165,9 @@ func main() {
 }
 
 // createWindow() lets the webview library create a managed window for us
-func createWindow(LAUNCHER_WINDOW_TITLE string, url string, width int32, height int32, hint webview.Hint) {
+func createWindow(LAUNCHER_WINDOW_TITLE string, url string, width int32, height int32, hint webview2.Hint) {
 	// Passes the pointer to the window as an unsafe reference
-	w := webview.New(DEBUGGER)
+	w := webview2.New(DEBUGGER)
 	defer w.Destroy()
 
 	hwndPtr := w.Window()
@@ -226,14 +226,14 @@ func createNativeWindow(LAUNCHER_WINDOW_TITLE string, url string, width int32, h
 	win.MoveWindow(hwnd, windowX, windowY, width, height, false)
 
 	// Pass the pointer to the window as an unsafe reference
-	webViewInstance = webview.NewWindow(DEBUGGER, unsafe.Pointer(&hwndPtr))
+	webViewInstance = webview2.NewWindow(DEBUGGER, unsafe.Pointer(&hwndPtr))
 	defer webViewInstance.Destroy()
 	bindFunctionsToWebView(webViewInstance)
 	webViewInstance.Navigate(LoadUrl(url))
 	webViewInstance.Run()
 }
 
-func bindFunctionsToWebView(w webview.WebView) {
+func bindFunctionsToWebView(w webview2.WebView) {
 	hwndPtr := w.Window()
 	hwnd := win.HWND(hwndPtr)
 

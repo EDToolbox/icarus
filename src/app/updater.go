@@ -139,7 +139,7 @@ func GetLatestRelease() (Release, error) {
 		return release, errors.New("Could not get download URL")
 	}
 
-	installedVersion := GetCurrentAppVersion()
+	installedVersion, _ := GetCurrentAppVersion()
 
 	release.InstalledVersion = installedVersion
 	release.ProductVersion = productVersion

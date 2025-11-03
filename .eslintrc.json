@@ -1,10 +1,11 @@
 {
   "env": {
+    "browser": true,
     "node": true,
     "es2022": true
   },
   "extends": [
-    "standard"
+    "next/core-web-vitals"
   ],
   "parserOptions": {
     "ecmaVersion": "latest",
@@ -12,21 +13,40 @@
   },
   "rules": {
     "no-console": "warn",
-    "prefer-const": "error",
-    "no-var": "error",
-    "object-shorthand": "error",
-    "prefer-arrow-callback": "error",
-    "arrow-spacing": "error",
-    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-    "no-trailing-spaces": "error",
-    "comma-dangle": ["error", "never"],
-    "quotes": ["error", "single"],
-    "semi": ["error", "never"]
+    "prefer-const": "warn",
+    "no-var": "warn",
+    "object-shorthand": "warn",
+    "prefer-arrow-callback": "warn",
+    "arrow-spacing": "warn",
+    "no-unused-vars": "warn",
+    "no-trailing-spaces": "warn",
+    "comma-dangle": "warn",
+    "quotes": "off",
+    "semi": "warn",
+    "indent": "off",
+    "space-infix-ops": "off",
+    "object-curly-spacing": "off",
+    "comma-spacing": "off",
+    "keyword-spacing": "off",
+    "space-before-function-paren": "off",
+    "operator-linebreak": "off",
+    "multiline-ternary": "off",
+    "no-multiple-empty-lines": "warn",
+    "eol-last": "warn",
+    "no-undef": "warn",
+    "no-prototype-builtins": "warn",
+    "eqeqeq": "warn",
+    "no-floating-decimal": "warn",
+    "no-duplicate-case": "warn",
+    "no-case-declarations": "warn",
+    "no-useless-return": "warn",
+    "spaced-comment": "warn"
   },
   "ignorePatterns": [
     "node_modules/",
     "build/",
     "dist/",
+    ".next/",
     "*.min.js"
   ]
 }

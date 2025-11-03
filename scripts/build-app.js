@@ -38,11 +38,13 @@ function clean () {
 }
 
 async function build () {
+  const goCommand = process.platform === 'win32' ? '"C:\\Program Files\\Go\\bin\\go.exe"' : 'go'
+  
   if (DEBUG_CONSOLE) {
     // Build that opens console output to a terminal
-    execSync(`cd src/app && go build -o "${APP_UNOPTIMIZED_BUILD}"`)
+    execSync(`cd src/app && ${goCommand} build -o "${APP_UNOPTIMIZED_BUILD}"`)
   } else {
-    execSync(`cd src/app && go build -ldflags="-H windowsgui -s -w" -o "${APP_UNOPTIMIZED_BUILD}"`)
+    execSync(`cd src/app && ${goCommand} build -ldflags="-H windowsgui -s -w" -o "${APP_UNOPTIMIZED_BUILD}"`)
   }
 
   if (DEVELOPMENT_BUILD) {
