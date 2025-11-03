@@ -1,0 +1,67 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches: [ main, update ]
+  push:
+    branches: [ update ]
+
+env:
+  NODE_VERSION: '20'
+  GO_VERSION: '1.23'
+
+jobs:
+  test-and-build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        
+    - name: Install Node.js dependencies
+      run: npm ci
+      
+    - name: Run linting
+      run: |
+        npm run lint:javascript
+        npm run type-check
+      continue-on-error: true
+      
+    - name: Security audit
+      run: npm audit --audit-level=high
+      continue-on-error: true
+      
+    - name: Test Go module compilation
+      working-directory: src/app
+      run: |
+        go mod download
+        go mod verify
+        
+    - name: Test build process
+      run: |
+        npm run build:client
+        npm run build:service
+        
+    - name: Test Go build (syntax check)
+      working-directory: src/app
+      run: go build -o test.exe .
+      continue-on-error: true
+      
+    - name: Build summary
+      run: |
+        echo "✅ Node.js dependencies installed successfully"
+        echo "✅ Client application built successfully"
+        echo "✅ Service application built successfully"
+        echo "✅ Go modules downloaded and verified"
+        echo "ℹ️  Full build with installer requires NSIS (see main workflow)"

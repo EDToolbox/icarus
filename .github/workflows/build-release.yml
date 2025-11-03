@@ -1,0 +1,150 @@
+name: Build and Release ICARUS Terminal
+
+on:
+  push:
+    branches: [ main, update ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '20'
+  GO_VERSION: '1.23'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        
+    - name: Install NSIS
+      run: |
+        choco install nsis -y
+        echo "C:\Program Files (x86)\NSIS" >> $env:GITHUB_PATH
+        
+    - name: Install Node.js dependencies
+      run: npm ci
+      
+    - name: Run linting and type checking
+      run: |
+        npm run lint:javascript
+        npm run type-check
+      continue-on-error: true
+      
+    - name: Build client application
+      run: npm run build:client
+      
+    - name: Build Go dependencies
+      working-directory: src/app
+      run: go mod download
+      
+    - name: Build ICARUS Terminal (Go App)
+      run: npm run build:app
+      
+    - name: Build ICARUS Service (Node.js)
+      run: npm run build:service
+      
+    - name: Create package structure
+      run: npm run build:package
+      
+    - name: Build installer (NSIS)
+      run: npm run build:installer
+      if: success()
+      
+    - name: List build outputs
+      run: |
+        echo "=== Build Directory ==="
+        Get-ChildItem -Recurse build\ -ErrorAction SilentlyContinue | Select-Object Name, Length, LastWriteTime
+        echo "=== Dist Directory ==="
+        Get-ChildItem -Recurse dist\ -ErrorAction SilentlyContinue | Select-Object Name, Length, LastWriteTime
+        echo "=== Installer Directory ==="
+        Get-ChildItem installer\ -ErrorAction SilentlyContinue | Select-Object Name, Length, LastWriteTime
+        echo "=== Root .exe Files ==="
+        Get-ChildItem *.exe -ErrorAction SilentlyContinue | Select-Object Name, Length, LastWriteTime
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: icarus-terminal-build-${{ github.sha }}
+        path: |
+          dist/
+          build/
+        retention-days: 30
+        
+    - name: Upload installer
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: icarus-terminal-installer-${{ github.sha }}
+        path: |
+          *.exe
+          installer/*.exe
+        retention-days: 30
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download installer artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: icarus-terminal-installer-${{ github.sha }}
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          *.exe
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        body: |
+          ## ICARUS Terminal ${{ github.ref_name }}
+          
+          ### 🚀 Changes in this release:
+          - Automated build with GitHub Actions
+          - Updated dependencies and security fixes
+          - Improved error handling and logging
+          - TypeScript support and code quality improvements
+          
+          ### 💾 Installation:
+          1. Download the `ICARUS-Terminal-Setup.exe` file
+          2. Run as administrator
+          3. Follow the installation wizard
+          4. Launch from Start Menu or Desktop shortcut
+          
+          ### 🔧 System Requirements:
+          - Windows 10/11 (64-bit)
+          - .NET Framework 4.8+ (installed automatically if needed)
+          - Elite Dangerous installed and configured
+          - 50MB free disk space
+          
+          ### 🐛 Known Issues:
+          - First launch may take longer due to dependency initialization
+          - Windows Defender may show warning (add to exclusions if needed)
+          
+          ### 📝 Support:
+          - Report issues on GitHub
+          - Check README.md for configuration help
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

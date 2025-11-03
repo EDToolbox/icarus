@@ -8,6 +8,8 @@
     "build:app": "node scripts/build-app.js",
     "build:service": "node scripts/build-service.js",
     "build:package": "node scripts/build-package.js",
+    "build:installer": "makensis installer/installer.nsi",
+    "build:release": "npm run build && npm run build:installer",
     "build:standalone": "npm run build:client && node scripts/build-standalone.js",
     "build:clean": "node scripts/build-clean.js",
     "build:assets": "node scripts/build-assets.js && npm run build:data",

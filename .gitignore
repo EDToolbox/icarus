@@ -6,3 +6,20 @@ temp/
 .env
 .next
 *.log
+
+# Installer artifacts
+*.exe
+installer/*.exe
+ICARUS-Terminal-Setup.exe
+
+# Go build artifacts
+src/app/icarus-terminal*
+src/app/test.exe
+src/app/*.exe
+
+# TypeScript
+*.tsbuildinfo
+
+# IDE
+.vscode/settings.json
+.idea/
